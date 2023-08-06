@@ -1,0 +1,33 @@
+name: Process Koios Data
+
+on:
+  push:
+    paths:
+      - 'KoiosAddressList'
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Extract payment_address and save to parties1.json
+      run: |
+        cat KoiosAddressList | jq '.[] | .payment_address' > parties1.json
+
+    - name: Count total quantity and save to total_tickets_sold.json
+      run: |
+        TOTAL_QUANTITY=$(cat KoiosAddressList | jq 'map(.quantity) | add')
+        echo "{\"total_tickets_sold\": $TOTAL_QUANTITY}" > total_tickets_sold.json
+
+    - name: Commit and push the changes
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "actions@github.com"
+        git add parties1.json total_tickets_sold.json
+        git commit -m "Update processed data"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
