@@ -1,0 +1,29 @@
+name: Create KoiosAddressList
+
+on:
+  # You can adjust the trigger as needed. For example, you can run this on a schedule.
+  workflow_dispatch: 
+
+jobs:
+  create-list:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Fetch data from Koios API
+      run: |
+        curl -X GET "https://api.koios.rest/api/v0/policy_asset_addresses?_asset_policy=4b0fc7ab3eb8104f17e4b51b9a179f811297516d95b183f0b5b04f0f" \
+         -H "accept: application/json" \
+         > KoiosAddressList.json
+
+    - name: Commit and push the changes
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "actions@github.com"
+        git add KoiosAddressList.json
+        git commit -m "Update KoiosAddressList.json from Koios API"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
