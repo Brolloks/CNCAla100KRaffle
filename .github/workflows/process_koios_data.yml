@@ -3,7 +3,7 @@ name: Process Koios Data
 on:
   push:
     paths:
-      - 'KoiosAddressList.json'
+      - 'KoiosAddressList'
 
 jobs:
   process:
