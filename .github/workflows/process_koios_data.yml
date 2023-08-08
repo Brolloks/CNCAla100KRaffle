@@ -15,11 +15,11 @@ jobs:
 
     - name: Extract payment_address and save to parties1.json
       run: |
-        cat KoiosAddressList.json | jq '.[] | .payment_address' > parties1.json
+        jq '[.[] | .payment_address]' KoiosAddressList.json > parties1.json
 
     - name: Count total quantity and save to total_tickets_sold.json
       run: |
-        TOTAL_QUANTITY=$(cat KoiosAddressList | jq 'map(.quantity) | add')
+        TOTAL_QUANTITY=$(jq 'reduce .[] as $item (0; . + ($item.quantity | tonumber))' KoiosAddressList.json)
         echo "{\"total_tickets_sold\": $TOTAL_QUANTITY}" > total_tickets_sold.json
 
     - name: Commit and push the changes
@@ -27,7 +27,7 @@ jobs:
         git config user.name "GitHub Actions Bot"
         git config user.email "actions@github.com"
         git add parties1.json total_tickets_sold.json
-        git commit -m "Update processed data"
-        git push
+        git commit -m "Update processed data" || echo "No changes to commit"
+        git push origin HEAD:main || echo "No changes to push"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
