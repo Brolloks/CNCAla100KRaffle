@@ -1,9 +1,8 @@
 name: Process Koios Data
 
 on:
-  push:
-    paths:
-      - 'KoiosAddressList.json'
+  # You can adjust the trigger as needed. For example, you can run this on a schedule.
+  workflow_dispatch: 
 
 jobs:
   process:
